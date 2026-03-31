@@ -32,11 +32,12 @@ Examples:
 """
 import argparse
 import os
+from pathlib import Path
 import shutil
 import subprocess
 import sys
 from datetime import datetime
-from typing import List, Optional
+from typing import List, Optional, Tuple
 
 
 def run(cmd: List[str], cwd: Optional[str] = None) -> None:
@@ -84,13 +85,38 @@ def check_cmake() -> bool:
 		return False
 	return True
 
+
+def resolve_user_path(path: str) -> str:
+	"""将用户输入路径展开并解析为绝对路径。"""
+	return str(Path(path).expanduser().resolve(strict=False))
+
+
+def normalize_cmake_path(path: str) -> str:
+	"""将路径转换为适合传给 CMake 和 C/C++ include 的正斜杠格式。"""
+	return Path(path).as_posix()
+
+
+def join_cmake_path_list(paths: List[str]) -> str:
+	"""将路径列表拼接成 CMake 接受的分号分隔格式。"""
+	return ";".join(normalize_cmake_path(path) for path in paths)
+
+
+def compute_generated_include_path(header_path: str, build_dir: str) -> str:
+	"""为生成的 main.cpp 计算头文件 include 路径。"""
+	try:
+		relative_path = os.path.relpath(header_path, build_dir)
+		return Path(relative_path).as_posix()
+	except ValueError:
+		return normalize_cmake_path(header_path)
+
 def configure_cmake(cmake_dir: str,
 					build_dir: str,
-					sources: str,
-					dir_list: List[str] = [],
+					sources: List[str],
+					dir_list: Optional[List[str]] = None,
 					generator: Optional[str] = None,
 					config: Optional[str] = None,
-					test_timeout: int = 0) -> None:
+					test_timeout: int = 0,
+					target_name: Optional[str] = None) -> None:
 	"""为指定的 cmake 源目录和构建目录生成 cmake 配置命令并执行。
 
 	参数为具体值，而非 argparse Namespace。
@@ -113,8 +139,7 @@ def configure_cmake(cmake_dir: str,
 	# 可选的源码列表，按 CMake 项目约定传递为 -DSOURCES="a.c;b.cc;c.cpp"
 	# Optional sources list, passed to CMake as -DSOURCES="a.c;b.cc;c.cpp"
 	if sources:
-		# Normalize Windows backslashes to forward slashes to avoid CMake escape issues
-		cmake_cmd += ["-DSOURCES=" + sources.replace('\\', '/')]
+		cmake_cmd += ["-DSOURCES=" + join_cmake_path_list(sources)]
 
 	# 可选的单配置构建类型（对多配置生成器无影响）
 	# Optional single-configuration build type (no effect on multi-config generators)
@@ -124,13 +149,17 @@ def configure_cmake(cmake_dir: str,
 	# 可选的目录列表，按 CMake 项目约定传递为 -DDIR_LIST="dir1;dir2;dir3"
 	# Optional directory list, passed to CMake as -DDIR_LIST="dir1;dir2;dir3"
 	if dir_list:
-		# Normalize directory separators for CMake (use forward slashes)
-		cmake_cmd += ["-DDIR_LIST=" + ";".join(d.replace('\\', '/') for d in dir_list)]
+		cmake_cmd += ["-DDIR_LIST=" + join_cmake_path_list(dir_list)]
 
 	# 可选的测试超时时间，单位为秒；0 表示不设置超时。
 	# Optional test timeout in seconds; 0 means do not set a timeout.
 	if test_timeout > 0:
 		cmake_cmd += [f"-DTEST_TIMEOUT={test_timeout}"]
+
+	# 可选的目标名，传入给 CMake（例如 -DTARGET_NAME=project_bin）
+	# Optional target name passed to CMake (e.g. -DTARGET_NAME=project_bin)
+	if target_name:
+		cmake_cmd += ["-DTARGET_NAME=" + target_name]
 
 	# 运行配置命令，失败则退出
 	# Run the configure command and exit on failure
@@ -201,7 +230,7 @@ def parse_sources(sources_str: str, sep: str = ';') -> List[str]:
 	"""
 	if not sources_str:
 		return []
-	parts = [os.path.abspath(os.path.expanduser(s.strip())) for s in sources_str.split(sep)]
+	parts = [resolve_user_path(s.strip()) for s in sources_str.split(sep)]
 	return [p for p in parts if p]
 
 def is_source_file(filename: str) -> bool:
@@ -234,16 +263,16 @@ def is_all_headers(sources_list: List[str]) -> bool:
 			return False
 	return True
 
-def get_dir_list(sources_list: List[str]) -> List[str]:
-	"""返回列表中所有目录路径的子列表。
-
-	Return the sublist of entries that are directory paths.
-	"""
-	dir_list = []	
-	for s in sources_list:
-		if os.path.isdir(s):
-			dir_list.append(s)
-	return dir_list
+def split_input_paths(paths: List[str]) -> Tuple[List[str], List[str]]:
+	"""将输入拆分为文件路径和目录路径两部分。"""
+	file_list: List[str] = []
+	dir_list: List[str] = []
+	for path in paths:
+		if os.path.isdir(path):
+			dir_list.append(path)
+		else:
+			file_list.append(path)
+	return file_list, dir_list
 
 
 def update_sources_list(sources_list: List[str], build_dir: str) -> List[str]:
@@ -272,11 +301,12 @@ def update_sources_list(sources_list: List[str], build_dir: str) -> List[str]:
 	# If only headers are present, generate a simple main.cpp into build_dir
 	if is_all_headers(sources_list):
 		main_cpp_path = os.path.join(build_dir, "main.cpp")
-		with open(main_cpp_path, "w") as f:
+		with open(main_cpp_path, "w", encoding="utf-8", newline="\n") as f:
 			f.write("#define __MAIN__\n")
 			for header in sources_list:
+				include_path = compute_generated_include_path(header, build_dir)
 				f.write("// 此处注释是必须的 / This comment is necessary\n")
-				f.write(f"#include \"{header}\"\n")
+				f.write(f"#include \"{include_path}\"\n")
 		print(f"警告: 仅提供头文件。已生成 {main_cpp_path} 以允许 CMake 配置。")
 		updated.append(main_cpp_path)		
 
@@ -296,10 +326,11 @@ def compute_build_dir(build_dir_arg: str, clean: bool = False) -> str:
 	if build_dir_arg:
 		build_dir = os.path.abspath(build_dir_arg)
 	else:
+		# 默认行为：在脚本所在目录下创建 build/<timestamp>
+		# 这样在 Windows、Linux、macOS 上表现一致，且无需跨磁盘或根目录权限。
 		current_dir = os.path.abspath(os.path.dirname(__file__))
-		root = os.path.splitdrive(current_dir)[0] + os.sep
 		timestamp = datetime.now().strftime("%Y%m%dT%H%M%S")
-		build_dir = os.path.join(root, "build", timestamp)
+		build_dir = os.path.join(current_dir, "build", timestamp)
 	if clean and os.path.isdir(build_dir):
 		print("正在移除已存在的构建目录:", build_dir)
 		shutil.rmtree(build_dir)
@@ -318,6 +349,7 @@ def parse_args() -> argparse.Namespace:
 		# description: Configure, build and run CTest for a specified CMake directory
 		parser.add_argument("--cmake-dir", "-m", default="", help="包含 CMakeLists.txt 的目录（默认：脚本所在目录） / Directory containing CMakeLists.txt (default: script directory)")
 		parser.add_argument("--build-dir", "-b", default="", help="构建输出目录（绝对或相对路径） / Build output directory (absolute or relative path)")
+		parser.add_argument("--target-name", "-n", default="project_bin", help="构建目标名（传递给 CMake 的 TARGET_NAME 变量，默认: project_bin） / Build target name (passed to CMake as TARGET_NAME, default: project_bin)")
 		parser.add_argument("--config", "-c", default="Release", help="构建配置（多配置生成器使用，例如 Release/Debug） / Build configuration (used for multi-config generators, e.g. Release/Debug)")
 		parser.add_argument("--jobs", "-j", type=int, default=None, help="并行构建作业数（传递给 --parallel） / Number of parallel build jobs (passed to --parallel)")
 		parser.add_argument("--sources", "-s", default="", help='以分号分隔的源文件列表，传递给 CMake（例如: "main.cpp;lib.cpp"） / Semicolon-separated list of source files to pass to CMake (e.g. "main.cpp;lib.cpp")')
@@ -377,25 +409,29 @@ def main():
 
 		# 将原始的 sources 字符串解析为列表，方便后续处理。
 		# Parse the raw SOURCES string into a list for subsequent processing.
-		sources_list = parse_sources(args.sources)
+		input_paths = parse_sources(args.sources)
 		
 		# 先计算构建目录（更新 sources 时可能需要写入 build_dir）。
 		# Compute the build directory first because updating sources may write into it.
 		build_dir = compute_build_dir(args.build_dir, clean=args.clean)
-		dir_list = get_dir_list(sources_list)
+		sources_list, dir_list = split_input_paths(input_paths)
 		if not dir_list:
 			sources_list = update_sources_list(sources_list, build_dir)
 
-		if not sources_list:
-			print("错误: 未提供源文件列表。如果 CMakeLists.txt 未定义 SOURCES，配置可能会失败。")
+		if not sources_list and not dir_list:
+			print("错误: 未提供源文件或目录列表。如果 CMakeLists.txt 未定义 SOURCES，配置可能会失败。")
 			sys.exit(1)
 
 		cmake_dir = os.path.abspath(args.cmake_dir) if args.cmake_dir else os.path.abspath(here)
 
+		if args.target_name and args.target_name == "test":
+			print("警告: 目标名 'test' 可能与 CTest 内置测试冲突。已重置为 'Test' / Warning: target name 'test' may conflict with CTest's built-in tests. Reset to 'Test'.")
+			args.target_name = "Test"
+
 		# 配置阶段：调用 cmake 生成构建文件（已拆分为函数）。
 		# Configure stage: invoke cmake to generate build files.
 		if not args.no_configure:
-			configure_cmake(cmake_dir, build_dir, ";".join(sources_list), dir_list, args.generator, args.config, args.timeout)
+			configure_cmake(cmake_dir, build_dir, sources_list, dir_list, args.generator, args.config, args.timeout, args.target_name)
 
 		# 构建阶段：调用 cmake --build（若未禁用）。
 		# Build stage: invoke cmake --build unless it is disabled.

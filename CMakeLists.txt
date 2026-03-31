@@ -32,6 +32,12 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+# 可配置的目标名（默认 project_bin）
+# Configurable target name (default: project_bin)
+if(NOT DEFINED TARGET_NAME)
+  set(TARGET_NAME project_bin)
+endif()
+
 # 处理 `SOURCES` 变量
 # Handle the `SOURCES` variable
 # - 期望：`SOURCES` 为以分号(;)分隔的路径列表（相对路径）
@@ -79,14 +85,14 @@ endif()
 
 # 主可执行目标：将 PROJECT_SOURCES 中的源文件编译为可执行文件 `project_bin`
 # Main executable target: compile sources in PROJECT_SOURCES into executable `project_bin`
-add_executable(project_bin ${PROJECT_SOURCES})
+add_executable(${TARGET_NAME} ${PROJECT_SOURCES})
 
 # 包含目录：把项目根目录加入私有包含路径，便于直接使用 #include "current_time.hpp"
 # Include directories: add project root to private include paths to allow direct #include "current_time.hpp"
-target_include_directories(project_bin PRIVATE ${CMAKE_SOURCE_DIR})
+target_include_directories(${TARGET_NAME} PRIVATE ${CMAKE_SOURCE_DIR})
 # 如果有额外收集到的 include 目录，则一并加入（来自 DIR_LIST 的子目录）
 if(EXTRA_INCLUDE_DIRS)
-  target_include_directories(project_bin PRIVATE ${EXTRA_INCLUDE_DIRS})
+  target_include_directories(${TARGET_NAME} PRIVATE ${EXTRA_INCLUDE_DIRS})
 endif()
 
 # 测试配置：
@@ -99,7 +105,7 @@ endif()
 # - Note: This is a basic smoke test; if the executable requires CLI arguments or a special environment,
 #   adjust the test command or add more test targets as needed.
 enable_testing()
-add_test(NAME run_project COMMAND project_bin)
+add_test(NAME run_project COMMAND ${TARGET_NAME})
 if(DEFINED TEST_TIMEOUT AND TEST_TIMEOUT GREATER 0)
   set_tests_properties(run_project PROPERTIES TIMEOUT ${TEST_TIMEOUT})
 endif()

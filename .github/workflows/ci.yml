@@ -1,0 +1,45 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  cpprun:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - windows-latest
+          - ubuntu-latest
+        case:
+          - case_name: single-source
+            sources: tests/main.cpp
+          - case_name: directory
+            sources: tests/calc
+          - case_name: header-only
+            sources: tests/timestamp/current_time.hpp
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Show tool versions
+        run: |
+          python --version
+          cmake --version
+          ctest --version
+
+      - name: Run cpprun
+        run: python cpprun.py -b "build/${{ matrix.case.case_name }}" -s "${{ matrix.case.sources }}" --clean

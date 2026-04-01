@@ -1,7 +1,7 @@
-# Changelog
+# 更新日志
 
-All notable changes to this repository will be documented in this file.
+记录本仓库的重要更改。
 
 ## 2026-04-01
 
-- tests(utils): use hex lookup table in `hex_to_bits` to improve performance (commit e89ce0d)
+- tests(utils)：在 `hex_to_bits` 中使用十六进制查找表以提高性能（提交 e89ce0d）

@@ -109,9 +109,9 @@ Here is a shortened terminal transcript that highlights the main stages printed 
 ```text
 > python cpprun.py -b build/calc -s "tests/calc"
 
-运行命令: cmake -S <repo> -B <repo>/build/calc -DCMAKE_BUILD_TYPE=Release -DDIR_LIST=<repo>/tests/calc
-运行命令: cmake --build <repo>/build/calc --config Release
-运行命令: ctest -V
+Run command: cmake -S <repo> -B <repo>/build/calc -DCMAKE_BUILD_TYPE=Release -DDIR_LIST=<repo>/tests/calc
+Run command: cmake --build <repo>/build/calc --config Release
+Run command: ctest -V
 
 ...
 1: Test command: ...

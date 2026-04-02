@@ -1,6 +1,6 @@
 # cpprun
 
-[English](README.en.md)
+[English](./docs/en/README.md)
 
 [![CI](https://github.com/kangwenjun/cpprun/actions/workflows/ci.yml/badge.svg)](https://github.com/kangwenjun/cpprun/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
@@ -83,23 +83,33 @@ flowchart TD
 
 ## 常用参数
 
-- `-s` / `--sources`：源文件列表或目录列表，使用 `;` 分隔多个条目
-- `-b` / `--build-dir`：指定构建目录。推荐始终显式传入，尤其是在 CI 或 Linux 环境中
-- `-r` / `--repeat`：重复运行 `ctest` 的次数
-- `-t` / `--timeout`：CTest 超时时间，单位秒
-- `--clean`：配置前清理现有构建目录
-- `-g` / `--generator`：显式指定 CMake generator
-- `-n` / `--target-name`：可选，传递给 CMake 的 `TARGET_NAME` 变量，用于指定生成的可执行目标名（默认 `project_bin`）
-- `--no-configure`、`--no-build`、`--no-test`：跳过某个阶段，方便调试
+- `-m` / `--cmake-dir`：包含 `CMakeLists.txt` 的目录（默认：脚本所在目录）
+- `-b` / `--build-dir`：构建输出目录（绝对或相对路径）。推荐始终显式传入，尤其是在 CI 环境中
+- `-n` / `--target-name`：构建目标名（传递给 CMake 的 `TARGET_NAME` 变量，默认: `project_bin`）
+- `-c` / `--config`：构建配置（多配置生成器使用，例如 `Release` / `Debug`，默认 `Release`）
+- `-j` / `--jobs`：并行构建作业数（传递给 `cmake --build --parallel`）
+- `-s` / `--sources`：以分号分隔的源文件/头文件或目录列表，例如: `tests/main.cpp;tests/utils`
+- `-r` / `--repeat`：运行 `ctest` 的次数，默认为 1
+- `-t` / `--timeout`：测试超时时间（秒）；`0` 表示不设置超时
+- `-g` / `--generator`：CMake 生成器名称（例如 `Ninja` 或 `Visual Studio`）
+- `-i` / `--install-dir`：安装目录（传递给 `cmake --install --prefix`）
+- `--clean`：在配置前删除构建目录
+- `--no-configure`：跳过 cmake 配置步骤
+- `--no-build`：跳过构建步骤（仅运行 ctest）
+- `--no-install`：即使指定了 `--install-dir` 也跳过安装步骤
+- `--no-test`：跳过运行 ctest 测试
 
 示例：
 
 ```powershell
-# 多个文件
-python cpprun.py -b build/multi -s "tests/calc/main.cpp;tests/calc/test_add.cpp;tests/calc/test_sub.cpp"
+# 指定 CMake 源目录与构建目录
+python cpprun.py -m . -b build/calc -s "tests/calc"
 
-# 重复执行测试 3 次
-python cpprun.py -b build/repeat -s "tests/main.cpp" --repeat 3
+# 指定并行作业并重复运行测试
+python cpprun.py -b build/repeat -s "tests/main.cpp" -j 4 --repeat 3
+
+# 指定安装目录（可与 --no-install 组合以跳过安装）
+python cpprun.py -b build/install -s "tests/timestamp/current_time.hpp" -i D:/output
 ```
 
 ## 运行输出示例
@@ -143,11 +153,19 @@ Total Test time (real) =   0.02 sec
 
 ## 仓库结构
 
-- [cpprun.py](cpprun.py)：命令行入口，负责配置、构建和执行 CTest
-- [CMakeLists.txt](CMakeLists.txt)：通用 CMake 配置，通过 `SOURCES` 或 `DIR_LIST` 生成 `project_bin`
-- [tests/](tests)：最小示例与 smoke test 用例
-- [.github/workflows/ci.yml](.github/workflows/ci.yml)：GitHub Actions 持续集成配置
-- [docs/project-layout.md](docs/project-layout.md)：更详细的结构和职责说明
+- [CHANGELOG.md](CHANGELOG.md)：发行说明与重要变更记录
+- [RELEASE_NOTES.md](RELEASE_NOTES.md)：发布备注（短期发布信息）
+- [RULES.md](RULES.md)：贡献/代码风格和仓库约定
+- [cpprun.py](cpprun.py)：命令行入口，负责解析参数、调用 CMake/CTest
+- [CMakeLists.txt](CMakeLists.txt)：项目级 CMake 配置，使用 `SOURCES` / `DIR_LIST` 生成示例可执行目标
+- [src/](src)：库/工具的源代码（包含若干头文件辅助功能）
+- [tests/](tests)：最小示例与 smoke test 用例（示例命令使用这些文件）
+- [docs/](docs)：文档目录（含 `docs/en/README.md` 与 `project-layout.md`）
+- [build/](build)：示例/历史构建输出（通常由脚本生成，可被忽略或清理）
+- [.github/workflows/ci.yml](.github/workflows/ci.yml)：GitHub Actions CI 配置，验证单文件/目录/头文件用例
+- [LICENSE](LICENSE)：MIT 许可证
+
+说明：仓库以单文件/目录/头文件三种主要用法为中心，`tests/` 下包含可直接运行的示例，`src/` 存放脚本的辅助实现；`build/` 目录为构建产物示例，不需检查入版本控制。
 
 ## 持续集成
 

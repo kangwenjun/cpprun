@@ -8,6 +8,8 @@
  */
 #include <cstring>
 
+namespace cpprun {
+
 constexpr const char* _lookup[] = 
 {
     "0000","0001","0010","0011",
@@ -64,20 +66,39 @@ inline bool hex_to_bits(const char *src, int len, char *output)
     return true;
 }
 
+} // namespace cpprun
+
 #ifdef __MAIN__
 #include <iostream>
 
 int main()
 {
+    using namespace cpprun;
+    
 	char bits[256] = {0};
 
 	hex_to_bits("5", 1, bits); // expect "0101"
+    if (memcmp(bits, "0101", 4) != 0)
+    {
+        std::cerr << "Test failed for input '5'. Expected '0101', got '" << bits << "'." << std::endl;
+        return __LINE__;
+    }
 	std::cout << "5 -> " << bits << std::endl;
 
 	hex_to_bits("0F", 2, bits); // expect "00001111"
+    if (memcmp(bits, "00001111", 8) != 0)
+    {
+        std::cerr << "Test failed for input '0F'. Expected '00001111', got '" << bits << "'." << std::endl;
+        return __LINE__;
+    }
 	std::cout << "0F -> " << bits << std::endl;
 
 	hex_to_bits("D6B", 3, bits); // expect "110101101011"
+    if (memcmp(bits, "110101101011", 12) != 0)
+    {
+        std::cerr << "Test failed for input 'D6B'. Expected '110101101011', got '" << bits << "'." << std::endl;
+        return __LINE__;
+    }
 	std::cout << "D6B -> " << bits << std::endl;
 
     // static unsigned char hexmap[256];

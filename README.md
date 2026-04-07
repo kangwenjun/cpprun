@@ -45,14 +45,14 @@ cpprun 是一个轻量的 C/C++ 运行辅助脚本：给它一组源文件，或
 建议在命令行中统一使用 `/` 作为路径分隔符，这样 Windows、Linux 和 GitHub Actions 的示例都保持一致。
 
 ```powershell
-# 单个源文件
-python cpprun.py -b build/hello -s "tests/main.cpp"
+单个源文件
+python scripts/cpprun.py -b build/hello -s "tests/main.cpp"
 
 # 目录模式：自动收集目录内的 C/C++ 源文件
-python cpprun.py -b build/calc -s "tests/calc"
+python scripts/cpprun.py -b build/calc -s "tests/calc"
 
 # 头文件模式：脚本会在构建目录中生成临时 main.cpp
-python cpprun.py -b build/timestamp -s "tests/timestamp/current_time.hpp"
+python scripts/cpprun.py -b build/timestamp -s "tests/timestamp/current_time.hpp"
 ```
 
 运行完成后，脚本会依次执行：
@@ -102,14 +102,14 @@ flowchart TD
 示例：
 
 ```powershell
-# 指定 CMake 源目录与构建目录
-python cpprun.py -m . -b build/calc -s "tests/calc"
+指定 CMake 源目录与构建目录
+python scripts/cpprun.py -m . -b build/calc -s "tests/calc"
 
 # 指定并行作业并重复运行测试
-python cpprun.py -b build/repeat -s "tests/main.cpp" -j 4 --repeat 3
+python scripts/cpprun.py -b build/repeat -s "tests/main.cpp" -j 4 --repeat 3
 
 # 指定安装目录（可与 --no-install 组合以跳过安装）
-python cpprun.py -b build/install -s "tests/timestamp/current_time.hpp" -i D:/output
+python scripts/cpprun.py -b build/install -s "tests/timestamp/current_time.hpp" -i D:/output
 ```
 
 ## 运行输出示例
@@ -117,7 +117,7 @@ python cpprun.py -b build/install -s "tests/timestamp/current_time.hpp" -i D:/ou
 下面是一个经过截断的终端输出示例，用来说明脚本实际会打印哪些关键阶段。具体路径、编译器信息和 CMake 细节会因平台而异。
 
 ```text
-> python cpprun.py -b build/calc -s "tests/calc"
+> python scripts/cpprun.py -b build/calc -s "tests/calc"
 
 运行命令: cmake -S <repo> -B <repo>/build/calc -DCMAKE_BUILD_TYPE=Release -DDIR_LIST=<repo>/tests/calc
 运行命令: cmake --build <repo>/build/calc --config Release
@@ -157,7 +157,8 @@ Total Test time (real) =   0.02 sec
 - [RELEASE_NOTES.md](RELEASE_NOTES.md)：发布备注（短期发布信息）
 - [RULES.md](RULES.md)：贡献/代码风格和仓库约定
 - [cpprun.py](cpprun.py)：命令行入口，负责解析参数、调用 CMake/CTest
-- [CMakeLists.txt](CMakeLists.txt)：项目级 CMake 配置，使用 `SOURCES` / `DIR_LIST` 生成示例可执行目标
+- [scripts/cpprun.py](scripts/cpprun.py)：命令行入口，负责解析参数、调用 CMake/CTest
+- [scripts/CMakeLists.txt](scripts/CMakeLists.txt)：项目级 CMake 配置，使用 `SOURCES` / `DIR_LIST` 生成示例可执行目标
 - [src/](src)：库/工具的源代码（包含若干头文件辅助功能）
 - [tests/](tests)：最小示例与 smoke test 用例（示例命令使用这些文件）
 - [docs/](docs)：文档目录（含 `docs/en/README.md` 与 `project-layout.md`）

@@ -1,10 +1,12 @@
 #pragma once
 #include <chrono>
 
-class Stopwatch
+namespace cpprun {
+
+class stopwatch
 {
 public:
-    Stopwatch() 
+    stopwatch()
     {
         reset();
     }
@@ -78,13 +80,15 @@ private:
     std::chrono::steady_clock::time_point start_time;
 };
 
+} // namespace cpprun
+
 
 #ifdef __MAIN__
 #include <iostream>
 
 int main()
 {
-    Stopwatch sw;
+    cpprun::stopwatch sw;
     for (volatile int i = 0; i < 1000000; ++i);
     std::cout << "Elapsed time: " << sw.elapsed_milliseconds() << " ms" << std::endl;
     return 0;

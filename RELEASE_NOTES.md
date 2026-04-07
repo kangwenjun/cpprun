@@ -1,35 +1,35 @@
-# Release Notes — 2026-04-01
+# 发行说明 — 2026-04-01
 
-This release includes small performance improvements, test utilities additions, and repository housekeeping.
+本次发布包括小幅性能改进、测试工具添加以及仓库整理。
 
-## Highlights
+## 重点
 
-- Performance: improved `hex_to_bits` by switching to a fast hex lookup table. This reduces conversion overhead in test utilities. (referenced commit: e89ce0d)
-- New files: `RULES.md` (project rules and contribution guidelines), `tests/utils/bits_to_hex.hpp` (utility for hex/bit conversions), `tests/utils/stopwatch.hpp` (simple timing helper for tests).
-- Removed: `tests/bin/bin2hex.cpp` — replaced by improved utilities.
-- Documentation: synchronized `CHANGELOG.md` and `CHANGELOG.en.md`.
+- 性能：通过切换到快速十六进制查找表改进了 `hex_to_bits`。这降低了测试工具中的转换开销。（参考提交：e89ce0d）
+- 新文件：`RULES.md`（项目规则与贡献指南）、`tests/utils/bits_to_hex.hpp`（十六进制/位转换工具）、`tests/utils/stopwatch.hpp`（测试用简单计时辅助）。
+- 移除：`tests/bin/bin2hex.cpp` — 已被改进的工具替代。
+- 文档：已同步 `CHANGELOG.md` 和 `CHANGELOG.en.md`。
 
-## Details and Rationale
+## 细节与理由
 
-1. `hex_to_bits` lookup table
-   - Replaced a per-character algorithm with a static lookup table for hexadecimal-to-bits conversion. This reduces branching and string parsing cost, which matters in tight test loops.
+1. `hex_to_bits` 查找表
+   - 将逐字符算法替换为静态查找表用于十六进制到位的转换。减少了分支和字符串解析开销，这在频繁的测试循环中很重要。
 
-2. Testing utilities
-   - `bits_to_hex.hpp` and `stopwatch.hpp` provide small, reusable helpers used across unit tests to reduce duplication and improve test clarity.
+2. 测试工具
+   - `bits_to_hex.hpp` 和 `stopwatch.hpp` 提供小且可复用的辅助工具，用于各单元测试，减少重复并提高测试可读性。
 
-3. Repository housekeeping
-   - Added `RULES.md` to document repository conventions and contribution expectations.
-   - Removed `tests/bin/bin2hex.cpp` because its functionality is superseded by the new utilities.
+3. 仓库整理
+   - 添加 `RULES.md` 来记录仓库约定与贡献期望。
+   - 移除 `tests/bin/bin2hex.cpp`，其功能已被新工具取代。
 
-## Impact
+## 影响
 
-- No public API changes — changes are internal to tests and documentation.
-- CI and local test runs may be slightly faster due to the conversion optimization.
+- 无公共 API 变更 —— 更改仅限测试和文档内部。
+- 由于转换优化，CI 与本地测试运行可能会略微加快。
 
-## Commits
+## 提交记录
 
-- e89ce0d — performance change in `hex_to_bits` (tests/utils)
-- f3ae91b — workspace changes (added/removed files)
-- 273ae4b — docs: add changelog entry for recent workspace changes
+- e89ce0d — `hex_to_bits` 的性能更改（tests/utils）
+- f3ae91b — 工作区更改（添加/移除文件）
+- 273ae4b — 文档：为最近的工作区更改添加变更日志条目
 
-If you want, I can open a pull request with these notes or tag a release on GitHub.
+如果需要，我可以为这些说明创建拉取请求或在 GitHub 上打上 release 标签。

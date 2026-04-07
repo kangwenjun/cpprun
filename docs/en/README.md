@@ -1,6 +1,6 @@
 # cpprun
 
-[中文](README.md)
+[中文](../../README.md)
 
 [![CI](https://github.com/kangwenjun/cpprun/actions/workflows/ci.yml/badge.svg)](https://github.com/kangwenjun/cpprun/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
@@ -69,37 +69,47 @@ The diagram below summarizes what cpprun does during a typical invocation:
 
 ```mermaid
 flowchart TD
-	A[Parse -s / --sources] --> B{Any directories provided?}
-	B -- Yes --> C[Pass DIR_LIST to CMake for recursive source discovery]
-	B -- No --> D{Headers only?}
-	D -- Yes --> E[Generate temporary main.cpp and define __MAIN__]
-	D -- No --> F[Pass file list through SOURCES]
-	C --> G[cmake -S ... -B ...]
-	E --> G
-	F --> G
-	G --> H[cmake --build ...]
-	H --> I[ctest -V]
+A[Parse -s / --sources] --> B{Any directories provided?}
+B -- Yes --> C[Pass DIR_LIST to CMake for recursive source discovery]
+B -- No --> D{Headers only?}
+D -- Yes --> E[Generate temporary main.cpp and define __MAIN__]
+D -- No --> F[Pass file list through SOURCES]
+C --> G[cmake -S ... -B ...]
+E --> G
+F --> G
+G --> H[cmake --build ...]
+H --> I[ctest -V]
 ```
 
 ## Common Options
 
-- `-s` / `--sources`: a list of source files or directories, separated by `;`
-- `-b` / `--build-dir`: the build directory. Passing this explicitly is recommended, especially in CI or Linux environments
-- `-r` / `--repeat`: repeat `ctest` multiple times
-- `-t` / `--timeout`: set the CTest timeout in seconds
-- `--clean`: remove the existing build directory before configuring
-- `-g` / `--generator`: explicitly select a CMake generator
-- `-n` / `--target-name`: optional, passed to CMake as `TARGET_NAME` to control the generated executable name (default: `project_bin`)
-- `--no-configure`, `--no-build`, `--no-test`: skip one stage for debugging
+- `-m` / `--cmake-dir`: directory containing `CMakeLists.txt` (default: the script directory)
+- `-b` / `--build-dir`: build output directory (absolute or relative). Passing this explicitly is recommended, especially in CI
+- `-n` / `--target-name`: target name passed to CMake as `TARGET_NAME` (default: `project_bin`)
+- `-c` / `--config`: build configuration for multi-config generators (e.g. `Release` / `Debug`, default: `Release`)
+- `-j` / `--jobs`: number of parallel build jobs (passed to `cmake --build --parallel`)
+- `-s` / `--sources`: semicolon-separated list of source files, headers, or directories, e.g. `tests/main.cpp;tests/utils`
+- `-r` / `--repeat`: number of times to run `ctest` (default: 1)
+- `-t` / `--timeout`: test timeout in seconds; `0` means no timeout
+- `-g` / `--generator`: CMake generator name (for example `Ninja` or `Visual Studio`)
+- `-i` / `--install-dir`: installation directory (passed to `cmake --install --prefix`)
+- `--clean`: remove the build directory before configuring
+- `--no-configure`: skip the cmake configure step
+- `--no-build`: skip the build step (run only ctest)
+- `--no-install`: skip installation even if `--install-dir` is provided
+- `--no-test`: skip running ctest
 
 Examples:
 
 ```powershell
-# Multiple files
-python cpprun.py -b build/multi -s "tests/calc/main.cpp;tests/calc/test_add.cpp;tests/calc/test_sub.cpp"
+# Specify CMake source directory and build directory
+python cpprun.py -m . -b build/calc -s "tests/calc"
 
-# Run the same test 3 times
-python cpprun.py -b build/repeat -s "tests/main.cpp" --repeat 3
+# Parallel build and repeat tests
+python cpprun.py -b build/repeat -s "tests/main.cpp" -j 4 --repeat 3
+
+# Specify install directory (can be combined with --no-install to skip)
+python cpprun.py -b build/install -s "tests/timestamp/current_time.hpp" -i D:/output
 ```
 
 ## Example Output
@@ -143,11 +153,19 @@ So header mode does not mean that any arbitrary header can be executed directly.
 
 ## Repository Layout
 
-- [cpprun.py](cpprun.py): CLI entry point that configures, builds, and runs CTest
-- [CMakeLists.txt](CMakeLists.txt): generic CMake project that builds `project_bin` from `SOURCES` or `DIR_LIST`
-- [tests/](tests): minimal samples and smoke-test inputs
-- [.github/workflows/ci.yml](.github/workflows/ci.yml): GitHub Actions workflow
-- [docs/project-layout.en.md](docs/project-layout.en.md): detailed structure and responsibility notes
+- [CHANGELOG.md](CHANGELOG.md): release notes and important changes
+- [RELEASE_NOTES.md](RELEASE_NOTES.md): short-term release notes
+- [RULES.md](RULES.md): contribution / style and repository conventions
+- [cpprun.py](cpprun.py): command-line entry point; parses arguments and drives CMake/CTest
+- [CMakeLists.txt](CMakeLists.txt): project-level CMake configuration, generates example executable using `SOURCES` / `DIR_LIST`
+- [src/](src): helper source (utility headers and helpers)
+- [tests/](tests): minimal examples and smoke-test cases used by examples and CI
+- [docs/](docs): documentation (includes `docs/en/README.md` and `project-layout.md`)
+- [build/](build): example/historical build outputs (generated by the script; safe to ignore or clean)
+- [.github/workflows/ci.yml](.github/workflows/ci.yml): GitHub Actions CI config validating single-file / directory / header modes
+- [LICENSE](LICENSE): MIT license
+
+Note: the repository centers on single-file / directory / header usage patterns; `tests/` contains runnable examples and `src/` contains helper implementation. `build/` holds generated build artifacts and should not be committed.
 
 ## Continuous Integration
 

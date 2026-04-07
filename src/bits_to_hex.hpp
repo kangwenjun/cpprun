@@ -4,6 +4,8 @@
 3. 110101101011 -> D6B
 */
 
+namespace cpprun {
+
 constexpr const char _hex_digits_upper[] = "0123456789ABCDEF";
 constexpr const char _hex_digits_lower[] = "0123456789abcdef";
 
@@ -42,21 +44,40 @@ inline void bits_to_hex(const char *src, int len, char *output, bool uppercase =
     output[out] = '\0';
 }
 
+} // namespace cpprun
+
 #ifdef __MAIN__
 #include <iostream>
 
 
 int main()
 {
+    using namespace cpprun;
+    
     char hex_output[16] = {0};
 
     bits_to_hex("101", 3, hex_output, true); // 5
+    if (hex_output[0] != '5') 
+    {
+        std::cerr << "Test failed for input '101'. Expected '5', got '" << hex_output << "'." << std::endl;
+        return __LINE__;
+    }
     std::cout << "101" << " -> " << hex_output << std::endl;
 
     bits_to_hex("1101", 4, hex_output, true); // D
+    if (hex_output[0] != 'D') 
+    {
+        std::cerr << "Test failed for input '1101'. Expected 'D', got '" << hex_output << "'." << std::endl;
+        return __LINE__;
+    }
     std::cout << "1101" << " -> " << hex_output << std::endl;
 
     bits_to_hex("110101101011", 12, hex_output, true); // D6B
+    if (memcmp(hex_output, "D6B", 3) != 0) 
+    {
+        std::cerr << "Test failed for input '110101101011'. Expected 'D6B', got '" << hex_output << "'." << std::endl;
+        return __LINE__;
+    }
     std::cout << "110101101011" << " -> " << hex_output << std::endl;
 
     return 0;

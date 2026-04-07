@@ -7,6 +7,12 @@ CMakeFiles/
 CMakeCache.txt
 CTestTestfile.cmake
 Testing/
+.ruff_cache/
+.venv/
+.vs/
+.vscode/
+.lingma/
+www/
 
 *.obj
 *.o

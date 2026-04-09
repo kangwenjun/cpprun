@@ -10,6 +10,7 @@ python scripts\cpprun.py -s src\singleton.hpp -b build/singleton
 python scripts\cpprun.py -s src\stopwatch.hpp -b build/stopwatch
 python scripts\cpprun.py -s src\timestamp.hpp -b build/timestamp
 python scripts\cpprun.py -s src\wait.hpp -b build/wait
+python scripts\cpprun.py -s src\file.hpp -b build/file
 
 
 python scripts\cpprun.py -s tests\bench_wait.cpp -b build/bench_wait

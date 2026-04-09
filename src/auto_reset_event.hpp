@@ -19,62 +19,41 @@ public:
 
     void wait()
     {
-        bool expected = true;
-        if (_notified.compare_exchange_strong(expected, false,
-                                              std::memory_order_acq_rel,
-                                              std::memory_order_acquire))
-        {
-            return;
-        }
-
         std::unique_lock<std::mutex> locker(_mutex);
-        _cv.wait(locker, [this] { return this->_notified.load(std::memory_order_acquire); });
-        _notified.store(false, std::memory_order_release);
+        _cv.wait(locker, [this] { return this->_notified; });
+        _notified = false;
     }
 
     template <class _Rep, class _Period>
     bool wait_for(const std::chrono::duration<_Rep, _Period> &duration)
     {
-        bool expected = true;
-        if (_notified.compare_exchange_strong(expected, false,
-                                              std::memory_order_acq_rel,
-                                              std::memory_order_acquire))
-        {
-            return true;
-        }
-
         std::unique_lock<std::mutex> locker(_mutex);
-        bool result = _cv.wait_for(locker, duration, [this]{ return _notified.load(std::memory_order_acquire); });
-        if (result) _notified.store(false, std::memory_order_release);
+        bool result = _cv.wait_for(locker, duration, [this]{ return _notified; });
+        if (result) _notified = false;
         return result;
     }
 
     bool wait_until(const std::chrono::steady_clock::time_point &abs_time)
     {
-        bool expected = true;
-        if (_notified.compare_exchange_strong(expected, false,
-                                              std::memory_order_acq_rel,
-                                              std::memory_order_acquire))
-        {
-            return true;
-        }
-
         std::unique_lock<std::mutex> locker(_mutex);
-        bool result = _cv.wait_until(locker, abs_time, [this]{ return _notified.load(std::memory_order_acquire); });
-        if (result) _notified.store(false, std::memory_order_release);
+        bool result = _cv.wait_until(locker, abs_time, [this]{ return _notified; });
+        if (result) _notified = false;
         return result;
     }
 
     void set() noexcept
     {
-        _notified.store(true, std::memory_order_release);
+        {
+            std::lock_guard<std::mutex> locker(_mutex);
+            _notified = true;
+        }
         _cv.notify_one();
     }
 
 private:
     std::mutex _mutex;
     std::condition_variable _cv;
-    std::atomic<bool> _notified{ false };
+    bool _notified{ false };
 };
 
 } // namespace cpprun

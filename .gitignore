@@ -14,6 +14,7 @@ Testing/
 .lingma/
 www/
 tmp/
+prompts/
 
 *.obj
 *.o

@@ -77,7 +77,6 @@ inline bool write_all_bytes(const std::filesystem::path& p, const std::vector<ui
     return static_cast<bool>(ofs);
 }
 
-// Append text to a file (creates parent directories if needed)
 inline bool append_text(const std::filesystem::path& p, const std::string& content) noexcept {
     if (!p.has_parent_path()) {
     } else {
@@ -90,7 +89,6 @@ inline bool append_text(const std::filesystem::path& p, const std::string& conte
     return static_cast<bool>(ofs);
 }
 
-// Append bytes to a file
 inline bool append_bytes(const std::filesystem::path& p, const std::vector<uint8_t>& bytes) noexcept {
     if (!p.has_parent_path()) {
     } else {
@@ -103,13 +101,11 @@ inline bool append_bytes(const std::filesystem::path& p, const std::vector<uint8
     return static_cast<bool>(ofs);
 }
 
-// Remove file
 inline bool remove_file(const std::filesystem::path& p) noexcept {
     std::error_code ec;
     return std::filesystem::remove(p, ec);
 }
 
-// Copy file (overwrite if requested)
 inline bool copy_file(const std::filesystem::path& from, const std::filesystem::path& to, bool overwrite = false) noexcept {
     std::error_code ec;
     std::filesystem::copy_options opts = overwrite ? std::filesystem::copy_options::overwrite_existing : std::filesystem::copy_options::skip_existing;

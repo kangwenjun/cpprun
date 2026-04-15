@@ -13,6 +13,6 @@ python scripts/cpprun.py -s src/wait.hpp -b build/wait
 python scripts/cpprun.py -s src/file.hpp -b build/file
 python scripts/cpprun.py -s src/format/va_format.hpp -b build/format
 python scripts/cpprun.py -s src/format/std_format.hpp -b build/std_format
-
-
+python scripts/cpprun.py -s src/format/std_vformat.hpp -b build/std_vformat
+python scripts/cpprun.py -s src/mutex/safe_data.hpp -b build/safe_data
 python scripts/cpprun.py -s tests/bench_wait.cpp -b build/bench_wait

@@ -18,6 +18,23 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+# Ensure source files are compiled as UTF-8 where supported.
+# - MSVC: /utf-8 tells the compiler to treat source files as UTF-8.
+# - GCC/Clang: -finput-charset and -fexec-charset set input/output encodings.
+# These options are applied globally via `add_compile_options` so all targets
+# created afterwards inherit the behavior.
+if(MSVC)
+  add_compile_options(
+    "$<$<COMPILE_LANGUAGE:C>:/utf-8>"
+    "$<$<COMPILE_LANGUAGE:CXX>:/utf-8>"
+  )
+else()
+  add_compile_options(
+    -finput-charset=UTF-8
+    -fexec-charset=UTF-8
+  )
+endif()
+
 # 可配置的目标名（默认 project_bin）
 if(NOT DEFINED TARGET_NAME)
   set(TARGET_NAME project_bin)

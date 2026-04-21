@@ -86,6 +86,19 @@ if(EXTRA_INCLUDE_DIRS)
   target_include_directories(${TARGET_NAME} PRIVATE ${EXTRA_INCLUDE_DIRS})
 endif()
 
+# 如果编译的源文件中包含 spdlog 实现文件，需要定义 SPDLOG_COMPILED_LIB
+# 以便 spdlog 的实现文件正确开启库模式（避免头文件中的 #error 宏）。
+set(HAS_SPDLOG FALSE)
+foreach(_src ${PROJECT_SOURCES})
+  if(_src MATCHES "spdlog")
+    set(HAS_SPDLOG TRUE)
+    break()
+  endif()
+endforeach()
+if(HAS_SPDLOG)
+  target_compile_definitions(${TARGET_NAME} PRIVATE SPDLOG_COMPILED_LIB)
+endif()
+
 # 测试配置：
 # - 启用 CTest 并注册一个简单测试 `run_project`，执行生成的 `project_bin`。
 # - 说明：这是一个基础的 smoke test；若可执行文件需要命令行参数或特殊环境，

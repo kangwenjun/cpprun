@@ -346,6 +346,23 @@ def main():
 
 		build_dir = compute_build_dir(args.build_dir, clean=args.clean)
 		sources_list, dir_list = split_input_paths(input_paths)
+
+		# 如果用户传入的文件名为测试入口（cpprun_test.cpp 或 cpprun_test.c），
+		# 我们应当传入整个目录以便运行该目录下的 CMake/CTest 配置。
+		# 将匹配的文件替换为其父目录（避免只传入单个测试文件）。
+		test_filenames = {"cpprun_test.cpp", "cpprun_test.c"}
+		# 处理 file list 中的单文件测试情况
+		new_file_list = []
+		for f in sources_list:
+			basename = os.path.basename(f)
+			if basename in test_filenames:
+				parent = os.path.abspath(os.path.dirname(f)) or os.path.abspath('.')
+				if parent not in dir_list:
+					dir_list.append(parent)
+				print(f"cpprun: 检测到测试入口 {basename}，将改为使用目录进行配置与构建: {parent}")
+			else:
+				new_file_list.append(f)
+		sources_list = new_file_list
 		if not dir_list:
 			sources_list = update_sources_list(sources_list, build_dir)
 

@@ -11,32 +11,53 @@ def get_target_list(repo_root: Path) -> List[Tuple[str, str, str]]:
 
     返回列表，元素为 (src_path, build_path, log_path)。
     """
-    dir_list = ["src"]
-    postfix_list = [".hpp", ".cpp", ".c"]
 
-    file_list = [
-        p for d in dir_list
-        for p in (repo_root / d).glob("**/*")
-        if p.is_file() and p.suffix in postfix_list
-    ]
+    file_list = []
+    src_dir = repo_root / "src"
+    exclude_dirs = []
+    for root, dirs, files in os.walk(src_dir):
+        print(f"扫描目录: {root}, 包含子目录: {dirs}, 包含文件: {files}")
+        if root in exclude_dirs:
+            print(f"跳过目录: {root} (已标记为测试目录)")
+            continue
+
+        # iterate over a copy so we can modify `dirs` to prevent descending
+        for dir_name in list(dirs):
+            print(f"发现子目录: {root}/{dir_name}")
+            c_path = os.path.join(root, dir_name, 'cpprun_test.c')
+            cpp_path = os.path.join(root, dir_name, 'cpprun_test.cpp')
+            found = None
+            if os.path.exists(c_path):
+                found = c_path
+            elif os.path.exists(cpp_path):
+                found = cpp_path
+            if found:
+                # prevent os.walk from descending into this directory
+                try:
+                    dirs.remove(dir_name)
+                except ValueError:
+                    pass
+                exclude_dirs.append(os.path.join(root, dir_name))
+                print(f"发现测试文件: {found}")
+                file_list.append((os.path.join(root, dir_name), 
+                                  repo_root / "build" / f"{dir_name}", 
+                                  repo_root / "logs" / f"{dir_name}"))
+                
+        for file_name in files:
+            if file_name.endswith((".hpp", ".cpp", ".c")):
+                file_path = os.path.join(root, file_name)
+                print(f"发现源文件: {file_path}")
+                file_list.append((file_path, 
+                                    repo_root / "build" / f"{Path(file_name).stem}", 
+                                    repo_root / "logs" / f"{Path(file_name).stem}"))
+
     print(f"文件列表: {file_list}")
-
-    target_list = [
-        (
-            str(p.resolve()),
-            str((repo_root / "build" / p.stem).resolve()),
-            str((repo_root / "logs" / p.stem).resolve()),
-        )
-        for p in file_list
-    ]
-    print(f"目标列表: {target_list}")
-
-    return target_list
+    return file_list
 
 
 def run_command(cmd: List[str], env: Optional[dict] = None, log_file: Optional[str] = None) -> int:
     """运行命令并返回退出码；若提供 `log_file`，将 stdout/stderr 写入该文件。"""
-    print("运行: " + " ".join(cmd))
+    print(f"命令: {' '.join(str(c) for c in cmd)}")
     if log_file:
         with open(log_file, "w", encoding="utf-8") as fh:
             proc = subprocess.run(cmd, env=env, stdout=fh, stderr=subprocess.STDOUT)
@@ -91,6 +112,7 @@ def main() -> int:
         # 获取目标列表并执行测试
         target_list = get_target_list(repo_root)
         for src, bld, log in target_list:
+            print(f"正在测试: {src} -> {bld} (日志: {log})")
             cmd = [python_exe, str(cpprun_script), "-s", src, "-b", bld, "--config", "Debug"]
             log_path = Path(log).with_suffix(".log")
             log_path.parent.mkdir(parents=True, exist_ok=True)

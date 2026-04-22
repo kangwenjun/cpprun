@@ -1,0 +1,58 @@
+-- Selecting Windows SDK version 10.0.26100.0 to target Windows 10.0.26200.
+CMake Warning (dev) at CMakeLists.txt:127 (install):
+  Policy CMP0177 is not set: install() DESTINATION paths are normalized.  Run
+  "cmake --help-policy CMP0177" for policy details.  Use the cmake_policy
+  command to set the policy and suppress this warning.
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
+-- Configuring done (0.0s)
+-- Generating done (0.0s)
+-- Build files have been written to: D:/cpprun/build/spdlog
+适用于 .NET Framework MSBuild 版本 17.14.40+3e7442088
+
+  Checking File Globs
+  project_bin.vcxproj -> D:\cpprun\build\spdlog\Release\project_bin.exe
+UpdateCTestConfiguration  from :D:/cpprun/build/spdlog/DartConfiguration.tcl
+Test project D:/cpprun/build/spdlog
+Constructing a list of tests
+Done constructing a list of tests
+Updating test list for fixtures
+Added 0 tests to meet fixture requirements
+Checking test dependency graph...
+Checking test dependency graph end
+test 1
+    Start 1: run_project
+
+1: Test command: D:\cpprun\build\spdlog\Release\project_bin.exe
+1: Working Directory: D:/cpprun/build/spdlog
+1: Test timeout computed to be: 10000000
+1: [2026-04-22 18:21:33.263] [info] Welcome to spdlog!
+1: [2026-04-22 18:21:33.263] [error] Some error message with arg: 1
+1: [2026-04-22 18:21:33.263] [warning] Easy padding in numbers like 00000012
+1: [2026-04-22 18:21:33.263] [info] 这是一段中文日志信息
+1: [2026-04-22 18:21:33.263] [info] 日本語ログメッセージ
+1: [2026-04-22 18:21:33.263] [info] 한국어 로그 메시지
+1: [2026-04-22 18:21:33.263] [info] Emoji test: 🎉 🚀 💻 🔥
+1: [2026-04-22 18:21:33.263] [debug] 调试信息：当前日志级别为 DEBUG
+1: [18:21:33 +08:00] [] [---I---] [thread 55696] 自定义格式日志输出
+1: [2026-04-22 18:21:33.264] [info] 彩色控制台输出测试
+1: [2026-04-22 18:21:33.264] [error] 错误信息：发生了一个错误 ❌
+1: [2026-04-22 18:21:33.264] [warning] 警告信息：请注意 ⚠️
+1: [2026-04-22 18:21:33.264] [error] 标准错误输出测试
+1: [2026-04-22 18:21:33.264] [multi_sink] [warning] 多接收器日志：同时输出到控制台和文件 📄
+1: [2026-04-22 18:21:33.266] [info] 带源代码位置的日志信息 📍
+1: [2026-04-22 18:21:33.266] [info] 二进制数据: 01 02 03 04 05
+1: [2026-04-22 18:21:33.266] [info] UTF-8字符串十六进制: 48 65 6c 6c 6f 20 e4 b8 96 e7 95 8c
+1: [2026-04-22 18:21:33.266] [info] 所有日志已刷新 💾
+1/1 Test #1: run_project ......................   Passed    0.02 sec
+
+100% tests passed, 0 tests failed out of 1
+
+Total Test time (real) =   0.03 sec
+cmake version 4.3.1
+
+CMake suite maintained and supported by Kitware (kitware.com/cmake).
+
+cpprun: 运行命令: cmake -S D:\cpprun\scripts -B D:\cpprun\build\spdlog -DCMAKE_BUILD_TYPE=Release -DDIR_LIST=D:/cpprun/src/spdlog -DTARGET_NAME=project_bin
+cpprun: 运行命令: cmake --build D:\cpprun\build\spdlog --config Release
+cpprun: 运行命令: ctest -V --test-dir D:\cpprun\build\spdlog -C Release

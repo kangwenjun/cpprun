@@ -1,0 +1,28 @@
+[
+    "src/cJSON",
+    "src/spdlog",
+
+    "src/time/wait.hpp",
+    "src/time/stopwatch.hpp",
+    "src/time/timestamp.hpp",
+
+    "src/singleton.hpp",
+
+    "src/dir/dir.hpp",
+    "src/file/file.hpp",
+
+    "src/format/std_format.hpp",
+    "src/format/std_vformat.hpp",
+    "src/format/va_format.hpp",
+
+    "src/mutex/safe_data.hpp",
+
+    "src/num/stoi.hpp",
+
+    "src/str/bits_to_hex.hpp",
+    "src/str/hex_to_bits.hpp",
+
+    "src/cv/auto_reset_event.hpp",
+    "src/cv/manual_reset_event.hpp",
+    "src/cv/event.hpp"
+]

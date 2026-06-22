@@ -1,4 +1,6 @@
-// Minimal file utilities using the C++ standard library
+// Copyright(c) 2015-present, 康文君 & cpprun contributors.
+// Distributed under the MIT License (http://opensource.org/licenses/MIT)
+
 #pragma once
 
 #include <string>
@@ -28,19 +30,20 @@ inline uintmax_t get_file_size(const std::filesystem::path& p) noexcept {
     return s;
 }
 
-inline std::string read_all_text(const std::filesystem::path& p) noexcept {
-    std::ifstream ifs(p, std::ios::in | std::ios::binary);
+inline std::string read_file(const std::filesystem::path& p) noexcept {
+    std::ifstream ifs(p, std::ios::binary | std::ios::ate);
     if (!ifs) return {};
-    std::ostringstream ss;
-    ss << ifs.rdbuf();
-    return ss.str();
+    
+    const auto size = static_cast<size_t>(ifs.tellg());
+    ifs.seekg(0);
+    
+    std::string result;
+    result.resize(size);
+    ifs.read(result.data(), size);
+    return result;
 }
 
-inline std::vector<uint8_t> read_all_bytes(const std::filesystem::path& p) noexcept {
-    std::ifstream ifs(p, std::ios::binary);
-    if (!ifs) return {};
-    return std::vector<uint8_t>(std::istreambuf_iterator<char>(ifs), std::istreambuf_iterator<char>());
-}
+
 
 inline std::vector<std::string> read_lines(const std::filesystem::path& p) noexcept {
     std::ifstream ifs(p);

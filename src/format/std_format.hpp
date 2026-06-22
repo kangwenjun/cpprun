@@ -1,4 +1,5 @@
-
+// Copyright(c) 2026-present, 康文君 & cpprun contributors.
+// Distributed under the MIT License (http://opensource.org/licenses/MIT)
 
 #if defined(__MAIN__)
 #include <format>
@@ -71,7 +72,8 @@ int main()
     std::cout << std::format("{:a}/{:A}", 3.1415926, 3.1415926) << std::endl;
 
     // eg: `0x7ff74c5ddc40`
-    std::cout << std::format("{:p}", static_cast<const void *>(&main)) << std::endl;
+    std::cout << std::format("msvc {:p}", static_cast<const void *>(&main)) << std::endl;
+    std::cout << std::format("msvc/ndk-build {}", static_cast<const void *>(&main)) << std::endl;
 
     // `{}`
     std::cout << std::format("{{}}") << std::endl;

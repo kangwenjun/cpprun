@@ -1,3 +1,6 @@
+// Copyright(c) 2026-present, 康文君 & cpprun contributors.
+// Distributed under the MIT License (http://opensource.org/licenses/MIT)
+
 #pragma once
 
 #include <shared_mutex>

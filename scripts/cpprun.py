@@ -5,9 +5,10 @@ cpprun - 配置、构建并运行指定 CMake 项目的 CTest
 这是一个用于快速对包含 CMakeLists.txt 的工程目录执行配置、构建并运行 ctest 的小型辅助脚本。
 
 使用示例：
-	python cpprun.py -s "tests/main.cpp"
-	python cpprun.py -s "tests/calc"
-	python cpprun.py -s "tests/timestamp/current_time.hpp"
+	python scripts/cpprun.py -s "tests/main.cpp"
+	python scripts/cpprun.py -s "tests/calc"
+	python scripts/cpprun.py -s "tests/timestamp/current_time.hpp"
+	python scripts/cpprun.py -s src/network/win_wifi_connection.cpp -b build/win_wifi_connection
 
 功能摘要：
  - 对指定源码生成 CMake 构建目录
@@ -90,11 +91,42 @@ def compute_generated_include_path(header_path: str, build_dir: str) -> str:
 	except ValueError:
 		return normalize_cmake_path(header_path)
 
+def is_source_file(filename: str) -> bool:
+	"""判断给定的 filename 是否具有常见的 C/C++ 源文件扩展名。"""
+	source_exts = {'.c', '.cc', '.cpp', '.cxx', '.c++'}
+	_, ext = os.path.splitext(filename)
+	return ext.lower() in source_exts
+
+
+def is_header_file(filename: str) -> bool:
+	"""判断文件名是否为常见 C/C++ 头文件扩展名。"""
+	header_exts = {'.h', '.hh', '.hpp', '.hxx'}
+	_, ext = os.path.splitext(filename)
+	return ext.lower() in header_exts
+
+
+def is_all_headers(sources_list: List[str]) -> bool:
+	"""如果列表仅包含头文件返回 True，否则返回 False。"""
+	if not sources_list:
+		return False
+	for s in sources_list:
+		if not is_header_file(s):
+			return False
+	return True
+
+def is_all_sources(sources_list: List[str]) -> bool:
+	"""如果列表仅包含源文件返回 True，否则返回 False。"""
+	if not sources_list:
+		return False
+	for s in sources_list:
+		if not is_source_file(s):
+			return False
+	return True
 
 def configure_cmake(
 	cmake_dir: str,
 	build_dir: str,
-	sources: List[str],
+	source_list: List[str],
 	dir_list: Optional[List[str]] = None,
 	generator: Optional[str] = None,
 	config: Optional[str] = None,
@@ -111,8 +143,8 @@ def configure_cmake(
 	if generator:
 		cmake_cmd += ["-G", generator]
 
-	if sources:
-		cmake_cmd += ["-DSOURCES=" + join_cmake_path_list(sources)]
+	if source_list:
+		cmake_cmd += ["-DSOURCES=" + join_cmake_path_list(source_list)]
 
 	if config:
 		cmake_cmd += ["-DCMAKE_BUILD_TYPE=" + config]
@@ -128,6 +160,10 @@ def configure_cmake(
 
 	if install_dir:
 		cmake_cmd += ["-DINSTALL_DIR=" + normalize_cmake_path(install_dir)]
+
+	if is_all_sources(source_list):
+		print("cpprun: 提示: 仅提供源文件，CMake 配置可能会失败（如果 CMakeLists.txt 没有定义 SOURCES）。")
+		cmake_cmd += ["-D__MAIN__=ON"]
 
 	run(cmake_cmd)
 
@@ -184,30 +220,6 @@ def parse_sources(sources_str: str, sep: str = ';') -> List[str]:
 		return []
 	parts = [resolve_user_path(s.strip()) for s in sources_str.split(sep)]
 	return [p for p in parts if p]
-
-
-def is_source_file(filename: str) -> bool:
-	"""判断给定的 filename 是否具有常见的 C/C++ 源文件扩展名。"""
-	source_exts = {'.c', '.cc', '.cpp', '.cxx', '.c++'}
-	_, ext = os.path.splitext(filename)
-	return ext.lower() in source_exts
-
-
-def is_header_file(filename: str) -> bool:
-	"""判断文件名是否为常见 C/C++ 头文件扩展名。"""
-	header_exts = {'.h', '.hh', '.hpp', '.hxx'}
-	_, ext = os.path.splitext(filename)
-	return ext.lower() in header_exts
-
-
-def is_all_headers(sources_list: List[str]) -> bool:
-	"""如果列表仅包含头文件返回 True，否则返回 False。"""
-	if not sources_list:
-		return False
-	for s in sources_list:
-		if not is_header_file(s):
-			return False
-	return True
 
 
 def split_input_paths(paths: List[str]) -> Tuple[List[str], List[str]]:
@@ -297,7 +309,7 @@ def parse_args() -> argparse.Namespace:
 		parser = argparse.ArgumentParser(description=desc)
 		parser.add_argument("--cmake-dir", "-m", default="", help=help_cmake_dir)
 		parser.add_argument("--build-dir", "-b", default="", help=help_build_dir)
-		parser.add_argument("--target-name", "-n", default="project_bin", help=help_target_name)
+		parser.add_argument("--target-name", "-n", default="cpprun", help=help_target_name)
 		parser.add_argument("--config", "-c", default="Release", help=help_config)
 		parser.add_argument("--jobs", "-j", type=int, default=None, help=help_jobs)
 		parser.add_argument("--sources", "-s", default="", help=help_sources)
@@ -351,6 +363,7 @@ def main():
 		# 我们应当传入整个目录以便运行该目录下的 CMake/CTest 配置。
 		# 将匹配的文件替换为其父目录（避免只传入单个测试文件）。
 		test_filenames = {"cpprun_test.cpp", "cpprun_test.c"}
+
 		# 处理 file list 中的单文件测试情况
 		new_file_list = []
 		for f in sources_list:

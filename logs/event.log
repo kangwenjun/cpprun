@@ -1,0 +1,38 @@
+-- Building for: Visual Studio 17 2022
+-- Selecting Windows SDK version 10.0.26100.0 to target Windows 10.0.26200.
+-- The C compiler identification is MSVC 19.44.35225.0
+-- The CXX compiler identification is MSVC 19.44.35225.0
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: C:/Program Files/Microsoft Visual Studio/2022/Enterprise/VC/Tools/MSVC/14.44.35207/bin/Hostx64/x64/cl.exe - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Check for working CXX compiler: C:/Program Files/Microsoft Visual Studio/2022/Enterprise/VC/Tools/MSVC/14.44.35207/bin/Hostx64/x64/cl.exe - skipped
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- 已配置 Boost 库支持，根目录: C:/boost_1_91_0
+-- Configuring done (3.2s)
+-- Generating done (0.0s)
+CMake Warning:
+  Manually-specified variables were not used by the project:
+
+    CMAKE_BUILD_TYPE
+
+
+-- Build files have been written to: D:/github.com/kangwenjun/cpprun/build/event
+适用于 .NET Framework MSBuild 版本 17.14.40+3e7442088
+
+  1>Checking Build System
+  Building Custom Rule D:/github.com/kangwenjun/cpprun/scripts/CMakeLists.txt
+  main.cpp
+MSVCRTD.lib(exe_main.obj) : error LNK2019: 无法解析的外部符号 main，函数 "int __cdecl invoke_main(void)" (?invoke_main@@YAHXZ) 中引用了该符号 [D:\github.com\kangwenjun\cpprun\build\event\cpprun.vcxproj]
+D:\github.com\kangwenjun\cpprun\build\event\Debug\cpprun.exe : fatal error LNK1120: 1 个无法解析的外部命令 [D:\github.com\kangwenjun\cpprun\build\event\cpprun.vcxproj]
+cmake version 4.3.1
+
+CMake suite maintained and supported by Kitware (kitware.com/cmake).
+
+cpprun: 提示: 仅提供头文件，已生成 D:\github.com\kangwenjun\cpprun\build\event\main.cpp 以允许 CMake 配置。
+cpprun: 运行命令: cmake -S D:\github.com\kangwenjun\cpprun\scripts -B D:\github.com\kangwenjun\cpprun\build\event -DSOURCES=D:/github.com/kangwenjun/cpprun/src/cv/event.hpp;D:/github.com/kangwenjun/cpprun/build/event/main.cpp -DCMAKE_BUILD_TYPE=Debug -DTARGET_NAME=cpprun
+cpprun: 运行命令: cmake --build D:\github.com\kangwenjun\cpprun\build\event --config Debug

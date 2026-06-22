@@ -18,11 +18,10 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-# Ensure source files are compiled as UTF-8 where supported.
-# - MSVC: /utf-8 tells the compiler to treat source files as UTF-8.
-# - GCC/Clang: -finput-charset and -fexec-charset set input/output encodings.
-# These options are applied globally via `add_compile_options` so all targets
-# created afterwards inherit the behavior.
+# 确保源文件在支持的情况下以 UTF-8 编码编译。
+# - MSVC: /utf-8 告诉编译器将源文件视为 UTF-8。
+# - GCC/Clang: -finput-charset 和 -fexec-charset 设置输入输出编码。
+# 这些选项通过 `add_compile_options` 全局应用，因此之后创建的所有目标都会继承此行为。
 if(MSVC)
   add_compile_options(
     "$<$<COMPILE_LANGUAGE:C>:/utf-8>"
@@ -97,6 +96,32 @@ foreach(_src ${PROJECT_SOURCES})
 endforeach()
 if(HAS_SPDLOG)
   target_compile_definitions(${TARGET_NAME} PRIVATE SPDLOG_COMPILED_LIB)
+endif()
+
+# Boost 库支持
+# 根据提供的目录结构：
+# C:/boost_1_91_0
+# ├── boost（头文件目录）
+# └── libs（静态库目录）
+set(BOOST_ROOT "C:/boost_1_91_0")
+if(DEFINED BOOST_ROOT)
+  # 设置 Boost 根目录
+  set(BOOST_ROOT "${BOOST_ROOT}")
+  
+  # 添加 Boost 头文件路径
+  target_include_directories(${TARGET_NAME} PRIVATE "${BOOST_ROOT}")
+  
+  # 添加 Boost 库路径
+  target_link_directories(${TARGET_NAME} PRIVATE "${BOOST_ROOT}/libs")
+  
+  # 如果需要链接特定的 Boost 库，可以在这里添加
+  # 例如：target_link_libraries(${TARGET_NAME} PRIVATE boost_system boost_filesystem)
+  
+  message(STATUS "已配置 Boost 库支持，根目录: ${BOOST_ROOT}")
+endif()
+
+if(__MAIN__)
+  target_compile_definitions(${TARGET_NAME} PRIVATE __MAIN__)
 endif()
 
 # 测试配置：

@@ -1,0 +1,61 @@
+-- Building for: Visual Studio 17 2022
+-- Selecting Windows SDK version 10.0.26100.0 to target Windows 10.0.26200.
+-- The C compiler identification is MSVC 19.44.35225.0
+-- The CXX compiler identification is MSVC 19.44.35225.0
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: C:/Program Files/Microsoft Visual Studio/2022/Enterprise/VC/Tools/MSVC/14.44.35207/bin/Hostx64/x64/cl.exe - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Check for working CXX compiler: C:/Program Files/Microsoft Visual Studio/2022/Enterprise/VC/Tools/MSVC/14.44.35207/bin/Hostx64/x64/cl.exe - skipped
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- 已配置 Boost 库支持，根目录: C:/boost_1_91_0
+-- Configuring done (3.3s)
+-- Generating done (0.0s)
+CMake Warning:
+  Manually-specified variables were not used by the project:
+
+    CMAKE_BUILD_TYPE
+
+
+-- Build files have been written to: D:/github.com/kangwenjun/cpprun/build/auto_reset_event
+适用于 .NET Framework MSBuild 版本 17.14.40+3e7442088
+
+  1>Checking Build System
+  Building Custom Rule D:/github.com/kangwenjun/cpprun/scripts/CMakeLists.txt
+  main.cpp
+  cpprun.vcxproj -> D:\github.com\kangwenjun\cpprun\build\auto_reset_event\Debug\cpprun.exe
+  Building Custom Rule D:/github.com/kangwenjun/cpprun/scripts/CMakeLists.txt
+UpdateCTestConfiguration  from :D:/github.com/kangwenjun/cpprun/build/auto_reset_event/DartConfiguration.tcl
+Test project D:/github.com/kangwenjun/cpprun/build/auto_reset_event
+Constructing a list of tests
+Done constructing a list of tests
+Updating test list for fixtures
+Added 0 tests to meet fixture requirements
+Checking test dependency graph...
+Checking test dependency graph end
+test 1
+    Start 1: run_project
+
+1: Test command: D:\github.com\kangwenjun\cpprun\build\auto_reset_event\Debug\cpprun.exe
+1: Working Directory: D:/github.com/kangwenjun/cpprun/build/auto_reset_event
+1: Test timeout computed to be: 10000000
+1: Thread 1 waiting...
+1: Thread 2 setting event...
+1: Thread 1 received signal!
+1/1 Test #1: run_project ......................   Passed    1.06 sec
+
+100% tests passed, 0 tests failed out of 1
+
+Total Test time (real) =   1.07 sec
+cmake version 4.3.1
+
+CMake suite maintained and supported by Kitware (kitware.com/cmake).
+
+cpprun: 提示: 仅提供头文件，已生成 D:\github.com\kangwenjun\cpprun\build\auto_reset_event\main.cpp 以允许 CMake 配置。
+cpprun: 运行命令: cmake -S D:\github.com\kangwenjun\cpprun\scripts -B D:\github.com\kangwenjun\cpprun\build\auto_reset_event -DSOURCES=D:/github.com/kangwenjun/cpprun/src/cv/auto_reset_event.hpp;D:/github.com/kangwenjun/cpprun/build/auto_reset_event/main.cpp -DCMAKE_BUILD_TYPE=Debug -DTARGET_NAME=cpprun
+cpprun: 运行命令: cmake --build D:\github.com\kangwenjun\cpprun\build\auto_reset_event --config Debug
+cpprun: 运行命令: ctest -V --test-dir D:\github.com\kangwenjun\cpprun\build\auto_reset_event -C Debug
